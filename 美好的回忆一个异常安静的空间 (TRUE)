@@ -5,9 +5,10 @@ local function apply(c)
     local hum = c:WaitForChild("Humanoid")
     task.wait(0.5)
 
-    local head=c:FindFirstChild("Head")
+    local head = c:FindFirstChild("Head")
     if head then
-        head.Transparency=1
+        head.Transparency = 1
+
         for _,v in pairs(head:GetChildren()) do
             if v:IsA("Decal") then
                 v:Destroy()
@@ -17,16 +18,20 @@ local function apply(c)
 
     for _,v in pairs(c:GetChildren()) do
         if v:IsA("Accessory") then
-            local h=v:FindFirstChild("Handle")
+            local h = v:FindFirstChild("Handle")
             if h then
                 if h:FindFirstChild("HatAttachment")
                 or h:FindFirstChild("HairAttachment")
-                or h:FindFirstChild("FaceFrontAttachment") then
+                or h:FindFirstChild("FaceFrontAttachment")
+                or h:FindFirstChild("FaceCenterAttachment")
+                or h:FindFirstChild("HairAttachment") then
                     v:Destroy()
                 end
             end
         end
     end
+
+
 
     local base=c:FindFirstChild("RightUpperLeg") or c:FindFirstChild("Right Leg")
     local lower=c:FindFirstChild("RightLowerLeg")
