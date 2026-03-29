@@ -1,84 +1,69 @@
 local p = game.Players.LocalPlayer
 
-local function apply(c)
-
-    local hum = c:WaitForChild("Humanoid")
-    task.wait(0.5)
-
+local function Headless(c)
     local head = c:FindFirstChild("Head")
     if head then
         head.Transparency = 1
-
-        for _,v in pairs(head:GetChildren()) do
-            if v:IsA("Decal") then
-                v:Destroy()
-            end
-        end
+        local face = head:FindFirstChild("face")
+        if face then face:Destroy() end
+        local mesh = head:FindFirstChildOfClass("SpecialMesh")
+        if mesh then mesh:Destroy() end
     end
+end
 
-    for _,v in pairs(c:GetChildren()) do
-        if v:IsA("Accessory") then
-            local h = v:FindFirstChild("Handle")
-            if h then
-                if h:FindFirstChild("HatAttachment")
-                or h:FindFirstChild("HairAttachment")
-                or h:FindFirstChild("FaceFrontAttachment")
-                or h:FindFirstChild("FaceCenterAttachment")
-                or h:FindFirstChild("HairAttachment") then
-                    v:Destroy()
+local function LoopHeadless(c)
+    task.spawn(function()
+        while c and c.Parent do
+            task.wait()
+            local head = c:FindFirstChild("Head")
+            if head then
+                if head.Transparency ~= 1 then
+                    head.Transparency = 1
                 end
+                local face = head:FindFirstChild("face")
+                if face then face:Destroy() end
+                local mesh = head:FindFirstChildOfClass("SpecialMesh")
+                if mesh then mesh:Destroy() end
             end
         end
-    end
+    end)
+end
 
+local function apply(c)
+    local hum = c:WaitForChild("Humanoid")
+    task.wait(0.5)
 
+    local base = c:FindFirstChild("RightUpperLeg") or c:FindFirstChild("Right Leg")
+    local lower = c:FindFirstChild("RightLowerLeg")
+    local foot = c:FindFirstChild("RightFoot")
 
-    local base=c:FindFirstChild("RightUpperLeg") or c:FindFirstChild("Right Leg")
-    local lower=c:FindFirstChild("RightLowerLeg")
-    local foot=c:FindFirstChild("RightFoot")
+    if lower then lower.Transparency = 1 end
+    if foot then foot.Transparency = 1 end
+    if base then base.Transparency = 1 end
 
-    if lower then lower.Transparency=1 end
-    if foot then foot.Transparency=1 end
-    if base then base.Transparency=1 end
+    local k = Instance.new("MeshPart")
+    k.MeshId = "rbxassetid://14331410389"
+    k.TextureID = "rbxassetid://14331410470"
+    k.Size = Vector3.new(1,1,1)
+    k.CanCollide = false
+    k.Parent = c
 
-    local k=Instance.new("MeshPart")
-    k.MeshId="rbxassetid://14331410389"
-    k.TextureID="rbxassetid://14331410470"
-    k.Size=Vector3.new(1,1,1)
-    k.CanCollide=false
-    k.Parent=c
+    local weld = Instance.new("Weld")
+    weld.Part0 = base
+    weld.Part1 = k
+    weld.Parent = base
 
-    local weld=Instance.new("Weld")
-    weld.Part0=base
-    weld.Part1=k
-    weld.Parent=base
-
-    local r15=c:FindFirstChild("RightUpperLeg")~=nil
+    local r15 = c:FindFirstChild("RightUpperLeg") ~= nil
 
     if r15 then
-        weld.C0=CFrame.new(0.05,0.10,-0.05)*CFrame.Angles(0,math.rad(180),0)
+        weld.C0 = CFrame.new(0.05, 0.10 + 0.1, -0.05) * CFrame.Angles(0, math.rad(180), 0)
     else
-        weld.C0=CFrame.new(0,0.55,0)*CFrame.Angles(0,math.rad(180),0)
+        weld.C0 = CFrame.new(0, 0.55 + 0.1, 0) * CFrame.Angles(0, math.rad(180), 0)
     end
 
-    hum.Running:Connect(function(speed)
-
-        if r15 then
-            weld.C0=CFrame.new(0.05,0.10,-0.05)*CFrame.Angles(0,math.rad(180),0)
-        else
-            if speed>1 then
-                weld.C0=CFrame.new(0,0.75,0)*CFrame.Angles(0,math.rad(180),0)
-            else
-                weld.C0=CFrame.new(0,0.55,0)*CFrame.Angles(0,math.rad(180),0)
-            end
-        end
-
-    end)
-
+    Headless(c)
+    LoopHeadless(c)
 end
 
 apply(p.Character or p.CharacterAdded:Wait())
-
-p.CharacterAdded:Connect(function(c)
-    apply(c)
-end)
+p.CharacterAdded:Connect(apply)
